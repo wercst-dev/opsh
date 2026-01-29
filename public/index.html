@@ -3,287 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram Accounts Parser</title>
+    <title>TG Parser | Поиск аккаунтов</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔍</text></svg>">
 </head>
 <body>
     <div class="container">
         <!-- Хедер -->
         <header class="header">
             <div class="logo">
-                <i class="fab fa-telegram"></i>
-                <div>
-                    <h1>Telegram Accounts Parser</h1>
-                    <p class="subtitle">Поиск аккаунтов с LZT.market в реальном времени</p>
+                <div class="logo-icon">TG</div>
+                <div class="logo-text">
+                    <h1>Parser</h1>
+                    <p>поиск telegram аккаунтов</p>
                 </div>
             </div>
-            <div class="contact-badge">
-                <i class="fab fa-telegram"></i>
-                <span>Оператор: <a href="https://t.me/opavshue" target="_blank">@opavshue</a></span>
-            </div>
+            <a href="admin.html" class="admin-link">
+                <i class="fas fa-lock"></i> админ
+            </a>
         </header>
 
-        <!-- Главный поиск -->
-        <main class="main-content">
-            <div class="hero">
-                <h2>Найдите нужный Telegram аккаунт за 30 секунд</h2>
-                <p>Опишите параметры - система найдет подходящие варианты на LZT.market</p>
-                
-                <div class="search-container">
-                    <div class="search-box">
-                        <div class="search-input-wrapper">
-                            <i class="fas fa-search"></i>
-                            <input type="text" 
-                                   id="searchInput" 
-                                   placeholder="Пример: Россия 5 лет чистый без спамлока"
-                                   autocomplete="off">
-                        </div>
-                        <button id="searchBtn" class="search-button">
-                            <i class="fas fa-search"></i> Найти аккаунты
-                        </button>
-                    </div>
-                    
-                    <div class="search-tips">
-                        <span class="tip-title">Подсказки:</span>
-                        <div class="tip-tags">
-                            <span class="tip-tag" data-query="Россия 5 лет чистый">Россия 5 лет чистый</span>
-                            <span class="tip-tag" data-query="Украина 3 года не тронутый">Украина 3 года не тронутый</span>
-                            <span class="tip-tag" data-query="Казахстан старый со спамлоком">Казахстан старый со спамлоком</span>
-                            <span class="tip-tag" data-query="США 1 год с историей">США 1 год с историей</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Фильтры -->
-            <div class="filters-section">
-                <div class="filters-grid">
-                    <div class="filter-group">
-                        <label for="countryFilter">Страна:</label>
-                        <select id="countryFilter">
-                            <option value="">Все страны</option>
-                            <option value="Россия">Россия</option>
-                            <option value="Украина">Украина</option>
-                            <option value="Казахстан">Казахстан</option>
-                            <option value="США">США</option>
-                            <option value="Германия">Германия</option>
-                            <option value="Франция">Франция</option>
-                            <option value="Польша">Польша</option>
-                        </select>
-                    </div>
-                    
-                    <div class="filter-group">
-                        <label for="ageFilter">Возраст (лет):</label>
-                        <select id="ageFilter">
-                            <option value="">Любой</option>
-                            <option value="1">1 год</option>
-                            <option value="2">2 года</option>
-                            <option value="3">3 года</option>
-                            <option value="4">4 года</option>
-                            <option value="5">5 лет</option>
-                            <option value="7+">7+ лет (старый)</option>
-                        </select>
-                    </div>
-                    
-                    <div class="filter-group">
-                        <label for="stateFilter">Состояние:</label>
-                        <select id="stateFilter">
-                            <option value="">Любое</option>
-                            <option value="чистый">Чистый</option>
-                            <option value="не тронутый">Не тронутый</option>
-                            <option value="с историей">С историей</option>
-                        </select>
-                    </div>
-                    
-                    <div class="filter-group">
-                        <label for="spamlockFilter">Спамлок:</label>
-                        <select id="spamlockFilter">
-                            <option value="">Не важно</option>
-                            <option value="без спамлока">Без спамлока</option>
-                            <option value="со спамлоком">Со спамлоком</option>
-                        </select>
-                    </div>
-                    
-                    <button id="applyFiltersBtn" class="apply-filters-btn">
-                        <i class="fas fa-filter"></i> Применить фильтры
+        <!-- Поиск -->
+        <main class="main">
+            <div class="search-section">
+                <div class="search-box">
+                    <input type="text" 
+                           id="searchInput" 
+                           placeholder="страна возраст состояние"
+                           autocomplete="off">
+                    <button id="searchBtn" class="btn-primary">
+                        <i class="fas fa-search"></i>
+                        найти
                     </button>
+                </div>
+                
+                <div class="hint">
+                    <p>Примеры: "россия 5 лет чистый", "украина 3 года без спамлока"</p>
+                </div>
+                
+                <div class="filters">
+                    <select id="countryFilter">
+                        <option value="">все страны</option>
+                        <option value="ru">россия</option>
+                        <option value="ua">украина</option>
+                        <option value="kz">казахстан</option>
+                        <option value="us">сша</option>
+                    </select>
+                    
+                    <select id="stateFilter">
+                        <option value="">состояние</option>
+                        <option value="clean">чистый</option>
+                        <option value="pristine">не тронутый</option>
+                    </select>
+                    
+                    <select id="spamFilter">
+                        <option value="">спамлок</option>
+                        <option value="no">без спамлока</option>
+                        <option value="yes">со спамлоком</option>
+                    </select>
                 </div>
             </div>
 
             <!-- Результаты -->
             <div id="resultsSection" class="results-section">
                 <div class="section-header">
-                    <h2 id="resultsTitle">Найденные аккаунты</h2>
-                    <div class="results-stats">
-                        <span id="resultsCount">0</span> аккаунтов
-                    </div>
+                    <h2 id="resultsTitle">результаты</h2>
+                    <div class="counter" id="resultsCount">0</div>
                 </div>
                 
-                <!-- Лоадер -->
                 <div id="loading" class="loading" style="display: none;">
-                    <div class="loader"></div>
-                    <p>Ищем аккаунты на LZT.market...</p>
-                    <p class="loader-subtext">Это может занять 10-20 секунд</p>
+                    <div class="spinner"></div>
+                    <p>поиск...</p>
                 </div>
                 
-                <!-- Контейнер результатов -->
-                <div id="resultsContainer" class="results-container">
-                    <!-- Здесь появятся карточки аккаунтов -->
-                    <div class="empty-state">
-                        <i class="fas fa-search"></i>
-                        <h3>Начните поиск</h3>
-                        <p>Введите запрос выше или используйте готовые примеры</p>
-                        <p>Система найдет подходящие аккаунты на LZT.market</p>
-                    </div>
+                <div id="resultsContainer" class="results-grid">
+                    <!-- Аккаунты появятся здесь -->
                 </div>
                 
-                <!-- Инструкция -->
-                <div class="instruction-card">
-                    <h3><i class="fas fa-info-circle"></i> Как купить аккаунт?</h3>
-                    <div class="steps">
-                        <div class="step">
-                            <div class="step-number">1</div>
-                            <div class="step-content">
-                                <h4>Найдите аккаунт</h4>
-                                <p>Используйте поиск выше. Система покажет номер аккаунта (например: <code>#TG-001</code>)</p>
-                            </div>
-                        </div>
-                        <div class="step">
-                            <div class="step-number">2</div>
-                            <div class="step-content">
-                                <h4>Свяжитесь с оператором</h4>
-                                <p>Напишите в Telegram: <a href="https://t.me/opavshue" target="_blank"><strong>@opavshue</strong></a></p>
-                                <p>Укажите номер нужного аккаунта</p>
-                            </div>
-                        </div>
-                        <div class="step">
-                            <div class="step-number">3</div>
-                            <div class="step-content">
-                                <h4>Получите ссылку</h4>
-                                <p>Оператор даст вам прямую ссылку на аккаунт на LZT.market</p>
-                                <p>Совершите покупку на LZT</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="contact-note">
-                        <i class="fab fa-telegram"></i>
-                        <p>Все вопросы через Telegram: <a href="https://t.me/opavshue" target="_blank">@opavshue</a></p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Преимущества -->
-            <div class="features-section">
-                <h2>Почему выбирают нас?</h2>
-                <div class="features-grid">
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-bolt"></i>
-                        </div>
-                        <h3>Поиск в реальном времени</h3>
-                        <p>Актуальные данные прямо с LZT.market</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-shield-alt"></i>
-                        </div>
-                        <h3>Безопасно</h3>
-                        <p>Прямая связь с оператором, никаких предоплат</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-clock"></i>
-                        </div>
-                        <h3>Быстро</h3>
-                        <p>Найти аккаунт за 30 секунд</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-headset"></i>
-                        </div>
-                        <h3>Поддержка 24/7</h3>
-                        <p>Оператор всегда на связи в Telegram</p>
-                    </div>
+                <div class="instruction">
+                    <h3><i class="fas fa-info-circle"></i> инструкция</h3>
+                    <ol>
+                        <li>найдите аккаунт</li>
+                        <li>запомните номер <code>#TG-001</code></li>
+                        <li>напишите <a href="https://t.me/opavshue" target="_blank">@opavshue</a></li>
+                        <li>укажите номер аккаунта</li>
+                    </ol>
                 </div>
             </div>
         </main>
 
         <!-- Футер -->
         <footer class="footer">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h4>Telegram Accounts Parser</h4>
-                    <p>Поиск и подбор Telegram аккаунтов</p>
-                    <p>Работаем с LZT.market</p>
-                </div>
-                
-                <div class="footer-section">
-                    <h4>Контакты</h4>
-                    <div class="contact-item">
-                        <i class="fab fa-telegram"></i>
-                        <a href="https://t.me/opavshue" target="_blank">@opavshue</a>
-                    </div>
-                    <p class="contact-note">Только Telegram</p>
-                </div>
-                
-                <div class="footer-section">
-                    <h4>Админ-панель</h4>
-                    <a href="admin.html" class="admin-link">
-                        <i class="fas fa-lock"></i> Вход для оператора
-                    </a>
-                </div>
-            </div>
-            
-            <div class="footer-bottom">
-                <p>© 2024 Telegram Accounts Parser. Все права защищены.</p>
-                <p class="disclaimer">Сервис предназначен для поиска аккаунтов. Покупка осуществляется на LZT.market.</p>
-            </div>
+            <p>для связи: <a href="https://t.me/opavshue" target="_blank">@opavshue</a></p>
+            <p class="copyright">© 2024 TG Parser</p>
         </footer>
     </div>
 
-    <!-- Модальное окно с результатом -->
-    <div id="resultModal" class="modal">
+    <!-- Модальное окно -->
+    <div id="modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3><i class="fas fa-check-circle"></i> Аккаунт найден!</h3>
-                <button class="modal-close">&times;</button>
+                <h3>аккаунт выбран</h3>
+                <button class="close-modal">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="modal-account-info">
-                    <div class="modal-account-id" id="modalAccountId">#TG-001</div>
-                    <h4 id="modalAccountTitle">Telegram аккаунт</h4>
-                    <div class="modal-account-details">
-                        <p><strong>Сохранен в системе</strong></p>
-                        <p>Теперь вы можете связаться с оператором для получения ссылки</p>
-                    </div>
-                </div>
-                
-                <div class="modal-instructions">
-                    <h4><i class="fas fa-list-ol"></i> Следующие шаги:</h4>
-                    <ol>
-                        <li>Запомните номер аккаунта: <code id="modalAccountIdCode">#TG-001</code></li>
-                        <li>Напишите в Telegram: <a href="https://t.me/opavshue" target="_blank">@opavshue</a></li>
-                        <li>Укажите номер аккаунта в сообщении</li>
-                        <li>Получите ссылку на LZT.market</li>
-                    </ol>
-                </div>
-                
+                <div class="account-id" id="modalAccountId">#TG-001</div>
+                <p>номер скопирован в буфер</p>
                 <div class="modal-actions">
-                    <button id="copyAccountIdBtn" class="modal-btn primary">
-                        <i class="far fa-copy"></i> Копировать номер
+                    <button id="copyBtn" class="btn-primary">
+                        <i class="far fa-copy"></i> скопировать снова
                     </button>
-                    <button class="modal-btn secondary close-modal-btn">
-                        <i class="fas fa-times"></i> Закрыть
+                    <button class="btn-secondary close-modal">
+                        закрыть
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Скрипты -->
-    <script src="app.js"></script>
+    <script src="parser.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
