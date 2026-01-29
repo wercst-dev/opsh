@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Accounts Parser</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Хедер -->
+        <header class="header">
+            <div class="logo">
+                <i class="fab fa-telegram"></i>
+                <h1>Telegram Accounts Parser</h1>
+            </div>
+            <p class="subtitle">Поиск аккаунтов с LZT.market</p>
+        </header>
+
+        <!-- Поиск -->
+        <div class="search-section">
+            <div class="search-box">
+                <input type="text" id="searchInput" 
+                       placeholder="Например: Россия 5 лет чистый без спамлока">
+                <button id="searchBtn">Найти</button>
+            </div>
+            
+            <div class="examples">
+                <p>Примеры запросов:</p>
+                <div class="tags">
+                    <span class="tag" data-query="Россия 5 лет чистый">Россия 5 лет чистый</span>
+                    <span class="tag" data-query="Украина 3 года не тронутый">Украина 3 года не тронутый</span>
+                    <span class="tag" data-query="Казахстан старый со спамлоком">Казахстан старый со спамлоком</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Результаты -->
+        <div id="results" class="results">
+            <h2>Как это работает:</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Введите запрос</h3>
+                    <p>Опишите нужный аккаунт: страна, возраст, состояние</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Получите номер</h3>
+                    <p>Система найдет аккаунт и даст вам его ID</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Свяжитесь с оператором</h3>
+                    <p>Напишите <strong>@opavshue</strong> в Telegram с номером аккаунта</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Админ-ссылка -->
+        <div class="admin-section">
+            <a href="admin.html" class="admin-link">
+                <i class="fas fa-lock"></i> Админ-панель
+            </a>
+        </div>
+
+        <!-- Футер -->
+        <footer>
+            <p>Для связи с оператором: <a href="https://t.me/opavshue" target="_blank">@opavshue</a></p>
+            <p class="copyright">© 2024 Telegram Accounts Parser</p>
+        </footer>
+    </div>
+
+    <script>
+        // Простой поиск с демо-данными
+        document.getElementById('searchBtn').addEventListener('click', function() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (!query) return;
+            
+            // Демо-результаты
+            const demoAccounts = [
+                {
+                    id: 'TG-' + Date.now() + '-001',
+                    title: 'Telegram аккаунт ' + query,
+                    price: '1500 ₽',
+                    country: 'Россия',
+                    age: '5 лет',
+                    status: 'чистый',
+                    description: 'Аккаунт соответствует вашему запросу'
+                }
+            ];
+            
+            // Показываем результат
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `
+                <h2>Результат поиска: "${query}"</h2>
+                <div class="account-card">
+                    <div class="account-id">${demoAccounts[0].id}</div>
+                    <h3>${demoAccounts[0].title}</h3>
+                    <div class="account-details">
+                        <span><strong>Цена:</strong> ${demoAccounts[0].price}</span>
+                        <span><strong>Страна:</strong> ${demoAccounts[0].country}</span>
+                        <span><strong>Возраст:</strong> ${demoAccounts[0].age}</span>
+                        <span><strong>Состояние:</strong> ${demoAccounts[0].status}</span>
+                    </div>
+                    <p>${demoAccounts[0].description}</p>
+                    <div class="instructions">
+                        <p><strong>Для покупки:</strong></p>
+                        <ol>
+                            <li>Запомните номер аккаунта: <code>${demoAccounts[0].id}</code></li>
+                            <li>Напишите в Telegram: <a href="https://t.me/opavshue" target="_blank">@opavshue</a></li>
+                            <li>Укажите номер аккаунта в сообщении</li>
+                        </ol>
+                    </div>
+                </div>
+                <button onclick="resetSearch()" class="new-search">Новый поиск</button>
+            `;
+            
+            window.scrollTo({ top: resultsDiv.offsetTop, behavior: 'smooth' });
+        });
+
+        // Примеры запросов
+        document.querySelectorAll('.tag').forEach(tag => {
+            tag.addEventListener('click', function() {
+                document.getElementById('searchInput').value = this.getAttribute('data-query');
+            });
+        });
+
+        // Сброс поиска
+        function resetSearch() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('results').innerHTML = `
+                <h2>Как это работает:</h2>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <h3>Введите запрос</h3>
+                        <p>Опишите нужный аккаунт: страна, возраст, состояние</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <h3>Получите номер</h3>
+                        <p>Система найдет аккаунт и даст вам его ID</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <h3>Свяжитесь с оператором</h3>
+                        <p>Напишите <strong>@opavshue</strong> в Telegram с номером аккаунта</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Поиск по Enter
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('searchBtn').click();
+            }
+        });
+    </script>
+</body>
+</html>
