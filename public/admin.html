@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель | Telegram Accounts Parser</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Хедер админки -->
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-lock"></i>
+                <h1>Админ-панель</h1>
+            </div>
+            <p class="subtitle">Поиск аккаунтов по номеру</p>
+            <a href="index.html" class="admin-link" style="margin-top: 20px;">
+                <i class="fas fa-arrow-left"></i> На главную
+            </a>
+        </header>
+
+        <!-- Поиск по ID -->
+        <div class="search-section">
+            <h2 style="margin-bottom: 20px; text-align: center;">Поиск аккаунта</h2>
+            
+            <div class="search-box">
+                <input type="text" id="accountId" 
+                       placeholder="Введите ID аккаунта (например: TG-202412251200-001)">
+                <button id="lookupBtn">Найти</button>
+            </div>
+            
+            <div class="examples">
+                <p>Формат ID: TG-ГГГГММДДЧЧММ-XXX</p>
+            </div>
+        </div>
+
+        <!-- Результат -->
+        <div id="lookupResult" class="results" style="display: none;">
+            <h2>Результат поиска</h2>
+            
+            <div class="account-card">
+                <div class="account-id" id="resultId">TG-202412251200-001</div>
+                
+                <h3 id="resultTitle">Telegram аккаунт</h3>
+                
+                <div class="account-details">
+                    <span><strong>ID на LZT:</strong> <span id="resultLztId">1234567</span></span>
+                    <span><strong>Ссылка:</strong> <a href="#" id="resultLink" target="_blank">Открыть</a></span>
+                    <span><strong>Дата поиска:</strong> <span id="resultDate">2024-12-25</span></span>
+                    <span><strong>Запрос:</strong> <span id="resultQuery">Россия 5 лет</span></span>
+                </div>
+                
+                <div class="instructions">
+                    <p><strong>Действия:</strong></p>
+                    <div style="display: flex; gap: 15px; margin-top: 15px;">
+                        <button onclick="copyLink()" class="new-search" style="background: #2ecc71;">
+                            <i class="far fa-copy"></i> Копировать ссылку
+                        </button>
+                        <button onclick="openLzt()" class="new-search">
+                            <i class="fas fa-external-link-alt"></i> Открыть на LZT
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Инструкция -->
+        <div class="results">
+            <h2>Инструкция для администратора</h2>
+            
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Получение номера</h3>
+                    <p>Клиент присылает вам номер аккаунта из формата #TG-XXXXXXXX-XXX</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Поиск ссылки</h3>
+                    <p>Введите номер в поле поиска выше</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Передача клиенту</h3>
+                    <p>Скопируйте ссылку на LZT и отправьте клиенту</p>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Админ-панель | Только для авторизованного персонала</p>
+            <p class="copyright">© 2024 Telegram Accounts Parser</p>
+        </footer>
+    </div>
+
+    <script>
+        // Демо-данные для админки
+        const demoAccounts = {
+            'TG-202412251200-001': {
+                title: 'Telegram аккаунт Россия 5 лет чистый',
+                lztId: '9876543',
+                link: 'https://lzt.market/9876543',
+                date: '25.12.2024 12:00',
+                query: 'Россия 5 лет чистый'
+            },
+            'TG-202412251201-002': {
+                title: 'Аккаунт Украина 3 года не тронутый',
+                lztId: '9876544',
+                link: 'https://lzt.market/9876544',
+                date: '25.12.2024 12:01',
+                query: 'Украина 3 года не тронутый'
+            },
+            'TG-202412251202-003': {
+                title: 'Казахстан старый со спамлоком',
+                lztId: '9876545',
+                link: 'https://lzt.market/9876545',
+                date: '25.12.2024 12:02',
+                query: 'Казахстан старый со спамлоком'
+            }
+        };
+
+        // Поиск аккаунта
+        document.getElementById('lookupBtn').addEventListener('click', function() {
+            const accountId = document.getElementById('accountId').value.trim().toUpperCase();
+            
+            if (!accountId.startsWith('TG-')) {
+                alert('ID должен начинаться с TG-');
+                return;
+            }
+            
+            // Проверяем демо-данные
+            if (demoAccounts[accountId]) {
+                const account = demoAccounts[accountId];
+                
+                // Заполняем данные
+                document.getElementById('resultId').textContent = accountId;
+                document.getElementById('resultTitle').textContent = account.title;
+                document.getElementById('resultLztId').textContent = account.lztId;
+                document.getElementById('resultLink').href = account.link;
+                document.getElementById('resultDate').textContent = account.date;
+                document.getElementById('resultQuery').textContent = account.query;
+                
+                // Показываем результат
+                document.getElementById('lookupResult').style.display = 'block';
+                
+                // Сохраняем текущий ID для копирования
+                window.currentAccount = account;
+                
+                // Прокручиваем к результату
+                window.scrollTo({
+                    top: document.getElementById('lookupResult').offsetTop - 50,
+                    behavior: 'smooth'
+                });
+            } else {
+                alert('Аккаунт не найден. Проверьте правильность ID.');
+            }
+        });
+
+        // Копирование ссылки
+        function copyLink() {
+            if (!window.currentAccount) return;
+            
+            navigator.clipboard.writeText(window.currentAccount.link)
+                .then(() => alert('Ссылка скопирована в буфер обмена!'))
+                .catch(() => alert('Не удалось скопировать ссылку'));
+        }
+
+        // Открытие ссылки на LZT
+        function openLzt() {
+            if (!window.currentAccount) return;
+            window.open(window.currentAccount.link, '_blank');
+        }
+
+        // Поиск по Enter
+        document.getElementById('accountId').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('lookupBtn').click();
+            }
+        });
+    </script>
+</body>
+</html>
