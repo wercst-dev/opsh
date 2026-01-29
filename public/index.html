@@ -3,24 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TG Parser | Поиск аккаунтов</title>
+    <title>TG Finder | Поиск аккаунтов</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔍</text></svg>">
 </head>
 <body>
     <div class="container">
         <!-- Хедер -->
         <header class="header">
             <div class="logo">
-                <div class="logo-icon">TG</div>
+                <div class="logo-icon">🔍</div>
                 <div class="logo-text">
-                    <h1>Parser</h1>
-                    <p>поиск telegram аккаунтов</p>
+                    <h1>TG Finder</h1>
+                    <p>быстрый поиск telegram аккаунтов</p>
                 </div>
             </div>
-            <a href="admin.html" class="admin-link">
-                <i class="fas fa-lock"></i> админ
-            </a>
+            <div class="header-actions">
+                <a href="admin.html" class="btn-secondary">
+                    <i class="fas fa-lock"></i>
+                </a>
+                <a href="https://t.me/opavshue" target="_blank" class="btn-primary telegram-btn">
+                    <i class="fab fa-telegram"></i>
+                    @opavshue
+                </a>
+            </div>
         </header>
 
         <!-- Поиск -->
@@ -29,73 +36,171 @@
                 <div class="search-box">
                     <input type="text" 
                            id="searchInput" 
-                           placeholder="страна возраст состояние"
+                           placeholder="Введите запрос: страна, возраст, состояние"
                            autocomplete="off">
                     <button id="searchBtn" class="btn-primary">
                         <i class="fas fa-search"></i>
-                        найти
+                        Найти
                     </button>
                 </div>
                 
                 <div class="hint">
-                    <p>Примеры: "россия 5 лет чистый", "украина 3 года без спамлока"</p>
+                    <p>Примеры: <span class="example" data-query="Россия 5 лет чистый">Россия 5 лет чистый</span>, 
+                    <span class="example" data-query="Украина 3 года без спамлока">Украина 3 года без спамлока</span>,
+                    <span class="example" data-query="Казахстан старый со спамлоком">Казахстан старый</span></p>
                 </div>
                 
                 <div class="filters">
-                    <select id="countryFilter">
-                        <option value="">все страны</option>
-                        <option value="ru">россия</option>
-                        <option value="ua">украина</option>
-                        <option value="kz">казахстан</option>
-                        <option value="us">сша</option>
-                    </select>
+                    <div class="filter-group">
+                        <label for="country">Страна:</label>
+                        <select id="countryFilter">
+                            <option value="">Все страны</option>
+                            <option value="RU">Россия</option>
+                            <option value="UA">Украина</option>
+                            <option value="KZ">Казахстан</option>
+                            <option value="US">США</option>
+                            <option value="DE">Германия</option>
+                        </select>
+                    </div>
                     
-                    <select id="stateFilter">
-                        <option value="">состояние</option>
-                        <option value="clean">чистый</option>
-                        <option value="pristine">не тронутый</option>
-                    </select>
+                    <div class="filter-group">
+                        <label for="age">Возраст:</label>
+                        <select id="ageFilter">
+                            <option value="">Любой</option>
+                            <option value="1">1 год</option>
+                            <option value="2">2 года</option>
+                            <option value="3">3 года</option>
+                            <option value="4">4 года</option>
+                            <option value="5">5 лет</option>
+                            <option value="7">7+ лет</option>
+                        </select>
+                    </div>
                     
-                    <select id="spamFilter">
-                        <option value="">спамлок</option>
-                        <option value="no">без спамлока</option>
-                        <option value="yes">со спамлоком</option>
-                    </select>
+                    <div class="filter-group">
+                        <label for="state">Состояние:</label>
+                        <select id="stateFilter">
+                            <option value="">Любое</option>
+                            <option value="clean">Чистый</option>
+                            <option value="pristine">Не тронутый</option>
+                            <option value="history">С историей</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="spam">Спамлок:</label>
+                        <select id="spamFilter">
+                            <option value="">Не важно</option>
+                            <option value="no">Без спамлока</option>
+                            <option value="yes">Со спамлоком</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
             <!-- Результаты -->
             <div id="resultsSection" class="results-section">
                 <div class="section-header">
-                    <h2 id="resultsTitle">результаты</h2>
-                    <div class="counter" id="resultsCount">0</div>
+                    <h2 id="resultsTitle">Результаты поиска</h2>
+                    <div class="counter">
+                        <span id="resultsCount">0</span> аккаунтов
+                    </div>
                 </div>
                 
                 <div id="loading" class="loading" style="display: none;">
                     <div class="spinner"></div>
-                    <p>поиск...</p>
+                    <p>Ищем подходящие аккаунты...</p>
+                    <p class="loader-sub">Это займет несколько секунд</p>
                 </div>
                 
                 <div id="resultsContainer" class="results-grid">
                     <!-- Аккаунты появятся здесь -->
+                    <div class="empty-state">
+                        <i class="fas fa-search"></i>
+                        <h3>Начните поиск</h3>
+                        <p>Введите запрос или используйте примеры выше</p>
+                        <p>Система найдет лучшие варианты для вас</p>
+                    </div>
                 </div>
                 
-                <div class="instruction">
-                    <h3><i class="fas fa-info-circle"></i> инструкция</h3>
-                    <ol>
-                        <li>найдите аккаунт</li>
-                        <li>запомните номер <code>#TG-001</code></li>
-                        <li>напишите <a href="https://t.me/opavshue" target="_blank">@opavshue</a></li>
-                        <li>укажите номер аккаунта</li>
-                    </ol>
+                <div class="instruction-card">
+                    <h3><i class="fas fa-info-circle"></i> Как купить аккаунт?</h3>
+                    <div class="steps">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h4>Найдите аккаунт</h4>
+                                <p>Выберите подходящий вариант из результатов</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h4>Нажмите "Выбрать"</h4>
+                                <p>Номер аккаунта скопируется автоматически</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h4>Перейдите в Telegram</h4>
+                                <a href="https://t.me/opavshue" target="_blank" class="telegram-link">
+                                    <i class="fab fa-telegram"></i>
+                                    Написать @opavshue
+                                </a>
+                                <p>Отправьте номер аккаунта и получите инструкции</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Быстрый переход -->
+            <div class="quick-action">
+                <div class="quick-card">
+                    <div class="quick-icon">
+                        <i class="fab fa-telegram"></i>
+                    </div>
+                    <div class="quick-content">
+                        <h3>Нужна помощь с выбором?</h3>
+                        <p>Напишите напрямую оператору для консультации</p>
+                        <a href="https://t.me/opavshue" target="_blank" class="btn-primary">
+                            <i class="fab fa-telegram"></i>
+                            Перейти в Telegram
+                        </a>
+                    </div>
                 </div>
             </div>
         </main>
 
         <!-- Футер -->
         <footer class="footer">
-            <p>для связи: <a href="https://t.me/opavshue" target="_blank">@opavshue</a></p>
-            <p class="copyright">© 2024 TG Parser</p>
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>TG Finder</h4>
+                    <p>Поиск и подбор Telegram аккаунтов</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Контакты</h4>
+                    <div class="contact-item">
+                        <i class="fab fa-telegram"></i>
+                        <a href="https://t.me/opavshue" target="_blank">@opavshue</a>
+                    </div>
+                    <p class="contact-note">Только через Telegram</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Оператор</h4>
+                    <a href="admin.html" class="admin-link">
+                        <i class="fas fa-user-shield"></i>
+                        Панель оператора
+                    </a>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>© 2024 TG Finder. Все вопросы через Telegram.</p>
+            </div>
         </footer>
     </div>
 
@@ -103,25 +208,41 @@
     <div id="modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>аккаунт выбран</h3>
+                <h3><i class="fas fa-check-circle"></i> Аккаунт выбран!</h3>
                 <button class="close-modal">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="account-id" id="modalAccountId">#TG-001</div>
-                <p>номер скопирован в буфер</p>
+                <div class="selected-account">
+                    <div class="account-id-display" id="modalAccountId">#TG-001</div>
+                    <p class="account-note">Номер аккаунта скопирован в буфер обмена</p>
+                </div>
+                
+                <div class="next-steps">
+                    <h4>Следующие шаги:</h4>
+                    <ol>
+                        <li>Сохраните номер аккаунта: <code id="modalAccountIdCode">#TG-001</code></li>
+                        <li>Перейдите в Telegram</li>
+                        <li>Напишите оператору @opavshue</li>
+                        <li>Отправьте номер аккаунта</li>
+                        <li>Получите полную информацию и условия</li>
+                    </ol>
+                </div>
+                
                 <div class="modal-actions">
-                    <button id="copyBtn" class="btn-primary">
-                        <i class="far fa-copy"></i> скопировать снова
-                    </button>
-                    <button class="btn-secondary close-modal">
-                        закрыть
+                    <a href="https://t.me/opavshue" target="_blank" class="btn-primary telegram-action">
+                        <i class="fab fa-telegram"></i>
+                        Перейти в Telegram
+                    </a>
+                    <button id="copyAgainBtn" class="btn-secondary">
+                        <i class="far fa-copy"></i>
+                        Скопировать номер
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="parser.js"></script>
+    <script src="api.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
