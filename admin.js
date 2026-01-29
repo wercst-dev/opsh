@@ -3,7 +3,7 @@
 class AdminPanel {
     constructor() {
         this.api = window.tgApi;
-        this.adminPassword = 'admin123'; // Пароль по умолчанию
+        this.adminPassword = '241512'; // Пароль по умолчанию
         this.currentAccount = null;
         
         this.initElements();
