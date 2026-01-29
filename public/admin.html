@@ -3,83 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TG Parser | Админ</title>
+    <title>TG Finder | Админ</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <!-- Форма входа -->
-    <div id="loginForm" class="login-form">
-        <div class="login-content">
-            <div class="login-header">
-                <div class="logo-icon">ADMIN</div>
-                <h2>админ панель</h2>
+    <div id="authScreen" class="auth-screen">
+        <div class="auth-container">
+            <div class="auth-header">
+                <div class="logo-icon">🔐</div>
+                <h1>Панель оператора</h1>
+                <p>Требуется авторизация</p>
             </div>
             
-            <div class="login-body">
+            <div class="auth-body">
                 <div class="form-group">
                     <input type="password" 
                            id="adminPassword" 
-                           placeholder="пароль"
+                           placeholder="Введите пароль"
                            autocomplete="off">
                 </div>
                 
                 <button id="loginBtn" class="btn-primary">
                     <i class="fas fa-sign-in-alt"></i>
-                    войти
+                    Войти
                 </button>
                 
-                <div class="login-hint">
-                    <p>доступ только для оператора</p>
+                <div class="auth-links">
                     <a href="index.html">
-                        <i class="fas fa-arrow-left"></i> на главную
+                        <i class="fas fa-arrow-left"></i>
+                        Вернуться на сайт
+                    </a>
+                    <a href="https://t.me/opavshue" target="_blank">
+                        <i class="fab fa-telegram"></i>
+                        Связаться с администратором
                     </a>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Админ панель (скрыта до входа) -->
     <div id="adminPanel" class="hidden">
         <div class="container">
             <header class="header">
                 <div class="logo">
-                    <div class="logo-icon">ADMIN</div>
+                    <div class="logo-icon">⚙️</div>
                     <div class="logo-text">
-                        <h1>Панель</h1>
+                        <h1>Панель оператора</h1>
                         <p>управление системой</p>
                     </div>
                 </div>
-                <button id="logoutBtn" class="admin-link">
-                    <i class="fas fa-sign-out-alt"></i> выйти
-                </button>
+                <div class="header-actions">
+                    <button id="refreshBtn" class="btn-secondary">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <button id="logoutBtn" class="btn-primary">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Выйти
+                    </button>
+                </div>
             </header>
 
             <main class="main">
-                <!-- Поиск по ID -->
+                <!-- Поиск аккаунта -->
                 <div class="search-section">
-                    <h2>поиск аккаунта</h2>
+                    <h2>Поиск аккаунта по номеру</h2>
                     
                     <div class="search-box">
                         <input type="text" 
                                id="accountIdInput" 
-                               placeholder="ID аккаунта (например: TG-123456-001)"
+                               placeholder="Введите ID аккаунта (например: TG-123456-001)"
                                autocomplete="off">
                         <button id="lookupBtn" class="btn-primary">
                             <i class="fas fa-search"></i>
-                            найти
+                            Найти
                         </button>
                     </div>
                     
                     <div class="hint">
-                        <p>введите внутренний ID аккаунта для получения ссылки на LZT</p>
+                        <p>Введите внутренний номер аккаунта для получения полной информации</p>
                     </div>
                 </div>
 
                 <!-- Результат поиска -->
                 <div id="lookupResult" class="results-section hidden">
                     <div class="section-header">
-                        <h2>результат</h2>
+                        <h2>Информация об аккаунте</h2>
+                        <div class="counter">Найден</div>
                     </div>
                     
                     <div class="account-card">
@@ -87,82 +97,331 @@
                         
                         <div class="account-details">
                             <div class="detail-item">
-                                <span class="detail-label">ссылка на LZT</span>
-                                <a href="#" id="resultLztLink" target="_blank" class="detail-value">
-                                    открыть
-                                </a>
+                                <span class="detail-label">Идентификатор</span>
+                                <span id="resultSourceId" class="detail-value">SRC123456</span>
                             </div>
                             <div class="detail-item">
-                                <span class="detail-label">ID на LZT</span>
-                                <span id="resultLztId" class="detail-value">1234567</span>
+                                <span class="detail-label">Название</span>
+                                <span id="resultTitle" class="detail-value">Telegram аккаунт</span>
                             </div>
                             <div class="detail-item">
-                                <span class="detail-label">название</span>
-                                <span id="resultTitle" class="detail-value">аккаунт</span>
+                                <span class="detail-label">Цена</span>
+                                <span id="resultPrice" class="detail-value">1500 ₽</span>
                             </div>
                             <div class="detail-item">
-                                <span class="detail-label">цена</span>
-                                <span id="resultPrice" class="detail-value">0 ₽</span>
+                                <span class="detail-label">Найден</span>
+                                <span id="resultFoundAt" class="detail-value">2024-12-25 12:00</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">По запросу</span>
+                                <span id="resultQuery" class="detail-value">Россия 5 лет</span>
                             </div>
                         </div>
                         
                         <div class="account-actions">
-                            <button id="copyLinkBtn" class="btn-primary">
-                                <i class="far fa-copy"></i> копировать ссылку
+                            <button id="copyInfoBtn" class="btn-primary">
+                                <i class="far fa-copy"></i>
+                                Копировать информацию
                             </button>
-                            <button id="openLinkBtn" class="btn-secondary">
-                                <i class="fas fa-external-link-alt"></i> открыть
+                            <button id="clearBtn" class="btn-secondary">
+                                <i class="fas fa-times"></i>
+                                Очистить
                             </button>
                         </div>
-                    </div>
-                </div>
-
-                <!-- История поисков -->
-                <div class="results-section">
-                    <div class="section-header">
-                        <h2>последние поиски</h2>
-                        <div class="counter" id="historyCount">0</div>
-                    </div>
-                    
-                    <div id="historyContainer" class="results-grid">
-                        <!-- История появится здесь -->
                     </div>
                 </div>
 
                 <!-- Статистика -->
                 <div class="results-section">
                     <div class="section-header">
-                        <h2>статистика</h2>
+                        <h2>Статистика системы</h2>
+                        <div class="counter" id="statsUpdated">Сейчас</div>
                     </div>
                     
-                    <div class="account-details">
-                        <div class="detail-item">
-                            <span class="detail-label">всего поисков</span>
-                            <span id="totalSearches" class="detail-value">0</span>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3>Всего поисков</h3>
+                                <p id="totalSearches">0</p>
+                            </div>
                         </div>
-                        <div class="detail-item">
-                            <span class="detail-label">уникальных запросов</span>
-                            <span id="uniqueQueries" class="detail-value">0</span>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3>Уникальных запросов</h3>
+                                <p id="uniqueQueries">0</p>
+                            </div>
                         </div>
-                        <div class="detail-item">
-                            <span class="detail-label">найдено аккаунтов</span>
-                            <span id="totalAccounts" class="detail-value">0</span>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-list"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3>Найдено аккаунтов</h3>
+                                <p id="totalAccounts">0</p>
+                            </div>
                         </div>
-                        <div class="detail-item">
-                            <span class="detail-label">активных сейчас</span>
-                            <span id="activeNow" class="detail-value">0</span>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3>Выбрано аккаунтов</h3>
+                                <p id="selectedAccounts">0</p>
+                            </div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Последние действия -->
+                <div class="results-section">
+                    <div class="section-header">
+                        <h2>Последние действия</h2>
+                        <button id="clearHistoryBtn" class="btn-secondary">
+                            <i class="fas fa-trash"></i>
+                            Очистить
+                        </button>
+                    </div>
+                    
+                    <div id="historyContainer" class="history-container">
+                        <!-- История появится здесь -->
                     </div>
                 </div>
             </main>
 
             <footer class="footer">
-                <p>админ панель TG Parser</p>
-                <p class="copyright">только для авторизованного персонала</p>
+                <div class="footer-content">
+                    <div class="footer-section">
+                        <h4>Панель оператора</h4>
+                        <p>Только для авторизованного персонала</p>
+                    </div>
+                    
+                    <div class="footer-section">
+                        <h4>Контакты</h4>
+                        <div class="contact-item">
+                            <i class="fab fa-telegram"></i>
+                            <a href="https://t.me/opavshue" target="_blank">@opavshue</a>
+                        </div>
+                    </div>
+                    
+                    <div class="footer-section">
+                        <h4>Версия</h4>
+                        <p>TG Finder v1.0</p>
+                    </div>
+                </div>
+                
+                <div class="footer-bottom">
+                    <p>© 2024 TG Finder. Все права защищены.</p>
+                </div>
             </footer>
         </div>
     </div>
 
+    <script src="api.js"></script>
     <script src="admin.js"></script>
+    
+    <style>
+        .auth-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .auth-container {
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+        
+        .auth-header {
+            margin-bottom: 40px;
+        }
+        
+        .auth-header .logo-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--black);
+            color: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin: 0 auto 20px;
+        }
+        
+        .auth-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--black);
+        }
+        
+        .auth-header p {
+            color: var(--gray-500);
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 18px 24px;
+            border: var(--border);
+            border-radius: var(--radius);
+            font-size: 16px;
+            text-align: center;
+            letter-spacing: 2px;
+            font-family: inherit;
+        }
+        
+        .auth-links {
+            margin-top: 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .auth-links a {
+            color: var(--gray-600);
+            text-decoration: none;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .auth-links a:hover {
+            color: var(--telegram);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            margin-top: 20px;
+        }
+        
+        .stat-card {
+            background: var(--gray-50);
+            border: var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .stat-icon {
+            width: 56px;
+            height: 56px;
+            background: var(--black);
+            color: var(--white);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        
+        .stat-content h3 {
+            font-size: 14px;
+            color: var(--gray-500);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .stat-content p {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--black);
+        }
+        
+        .history-container {
+            max-height: 400px;
+            overflow-y: auto;
+            border: var(--border);
+            border-radius: var(--radius);
+        }
+        
+        .history-item {
+            padding: 20px 24px;
+            border-bottom: var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .history-item:last-child {
+            border-bottom: none;
+        }
+        
+        .history-info {
+            flex: 1;
+        }
+        
+        .history-account {
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: var(--black);
+        }
+        
+        .history-meta {
+            display: flex;
+            gap: 16px;
+            color: var(--gray-500);
+            font-size: 12px;
+        }
+        
+        .history-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .history-btn {
+            background: none;
+            border: var(--border);
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            color: var(--gray-600);
+        }
+        
+        .history-btn:hover {
+            background: var(--gray-50);
+        }
+        
+        .account-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        
+        .account-actions .btn-primary,
+        .account-actions .btn-secondary {
+            flex: 1;
+        }
+    </style>
 </body>
 </html>
