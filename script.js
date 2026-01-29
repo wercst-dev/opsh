@@ -1,15 +1,14 @@
 // script.js - Логика главной страницы
 
-class TelegramParserApp {
+class TGFinder {
     constructor() {
-        this.parser = window.lztParser;
+        this.api = window.tgApi;
         this.selectedAccount = null;
-        this.lastSearchTime = 0;
-        this.searchCooldown = 2000; // 2 секунды между поисками
+        this.isSearching = false;
         
         this.initElements();
         this.bindEvents();
-        this.setupAuth();
+        this.setupExamples();
     }
     
     initElements() {
@@ -19,6 +18,7 @@ class TelegramParserApp {
         
         // Фильтры
         this.countryFilter = document.getElementById('countryFilter');
+        this.ageFilter = document.getElementById('ageFilter');
         this.stateFilter = document.getElementById('stateFilter');
         this.spamFilter = document.getElementById('spamFilter');
         
@@ -32,14 +32,27 @@ class TelegramParserApp {
         // Модальное окно
         this.modal = document.getElementById('modal');
         this.modalAccountId = document.getElementById('modalAccountId');
-        this.copyBtn = document.getElementById('copyBtn');
+        this.modalAccountIdCode = document.getElementById('modalAccountIdCode');
+        this.copyAgainBtn = document.getElementById('copyAgainBtn');
+        
+        // Быстрый переход
+        this.telegramLinks = document.querySelectorAll('a[href*="t.me"]');
     }
     
     bindEvents() {
         // Поиск
-        this.searchBtn.addEventListener('click', () => this.handleSearch());
+        this.searchBtn.addEventListener('click', () => this.performSearch());
         this.searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') this.handleSearch();
+            if (e.key === 'Enter') this.performSearch();
+        });
+        
+        // Фильтры (применяются автоматически при изменении)
+        [this.countryFilter, this.ageFilter, this.stateFilter, this.spamFilter].forEach(filter => {
+            filter.addEventListener('change', () => {
+                if (this.searchInput.value.trim()) {
+                    this.performSearch();
+                }
+            });
         });
         
         // Модальное окно
@@ -47,7 +60,7 @@ class TelegramParserApp {
             btn.addEventListener('click', () => this.hideModal());
         });
         
-        this.copyBtn.addEventListener('click', () => this.copyAccountId());
+        this.copyAgainBtn.addEventListener('click', () => this.copyAccountId());
         
         // Закрытие по клику вне
         window.addEventListener('click', (e) => {
@@ -56,74 +69,73 @@ class TelegramParserApp {
             }
         });
         
-        // Ограничение частоты поиска
-        this.searchBtn.addEventListener('click', (e) => {
-            const now = Date.now();
-            if (now - this.lastSearchTime < this.searchCooldown) {
+        // Открытие Telegram в новом окне
+        this.telegramLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
                 e.preventDefault();
-                this.showMessage('подождите перед следующим поиском', 'warning');
-                return;
-            }
+                const url = link.getAttribute('href');
+                window.open(url, '_blank', 'noopener,noreferrer');
+                
+                // Если это ссылка из модалки после выбора аккаунта
+                if (this.selectedAccount && link.closest('.modal-actions')) {
+                    this.trackTelegramClick();
+                }
+            });
         });
     }
     
-    setupAuth() {
-        // Проверяем авторизацию для админки
-        const isAdminPage = window.location.pathname.includes('admin.html');
-        if (isAdminPage && !sessionStorage.getItem('adminAuthenticated')) {
-            this.redirectToAuth();
-        }
+    setupExamples() {
+        document.querySelectorAll('.example').forEach(example => {
+            example.addEventListener('click', (e) => {
+                const query = e.target.getAttribute('data-query');
+                this.searchInput.value = query;
+                this.searchInput.focus();
+                this.performSearch();
+            });
+        });
     }
     
-    redirectToAuth() {
-        const password = prompt('Введите пароль администратора:');
-        if (password === 'admin123') { // Пароль по умолчанию
-            sessionStorage.setItem('adminAuthenticated', 'true');
-            location.reload();
-        } else {
-            window.location.href = 'index.html';
-        }
-    }
-    
-    async handleSearch() {
-        const now = Date.now();
-        if (now - this.lastSearchTime < this.searchCooldown) {
-            this.showMessage('подождите 2 секунды', 'warning');
+    async performSearch() {
+        if (this.isSearching) {
+            this.showMessage('Подождите, идет поиск...', 'warning');
             return;
         }
         
-        this.lastSearchTime = now;
-        
         const query = this.searchInput.value.trim();
         if (!query) {
-            this.showMessage('введите запрос', 'warning');
+            this.showMessage('Введите поисковый запрос', 'warning');
             this.searchInput.focus();
             return;
         }
         
-        // Парсим текстовый запрос
-        const textParams = this.parser.parseTextQuery(query);
-        
-        // Получаем параметры фильтров
-        const filterParams = this.getFilterParams();
-        
-        // Комбинируем параметры
-        const params = this.parser.combineParams(textParams, filterParams);
-        
-        // Показываем загрузку
+        this.isSearching = true;
         this.showLoading(true);
         
         try {
-            // Выполняем поиск через парсер
-            const accounts = await this.parser.search(params);
+            // Парсим текстовый запрос
+            const textParams = this.api.parseSearchQuery(query);
+            
+            // Получаем параметры фильтров
+            const filterParams = this.getFilterParams();
+            
+            // Объединяем параметры
+            const searchParams = { ...textParams, ...filterParams };
+            
+            // Выполняем поиск
+            const accounts = await this.api.searchAccounts(searchParams);
             
             // Отображаем результаты
             this.displayResults(accounts, query);
             
+            // Сохраняем статистику
+            this.saveSearchStats(query, accounts.length);
+            
         } catch (error) {
-            console.error('Search failed:', error);
-            this.showMessage('ошибка поиска', 'error');
+            console.error('Search error:', error);
+            this.showMessage('Ошибка при поиске. Попробуйте еще раз.', 'error');
+            this.displayResults([], query);
         } finally {
+            this.isSearching = false;
             this.showLoading(false);
         }
     }
@@ -133,6 +145,10 @@ class TelegramParserApp {
         
         if (this.countryFilter.value) {
             params.country = this.countryFilter.value;
+        }
+        
+        if (this.ageFilter.value) {
+            params.age = parseInt(this.ageFilter.value);
         }
         
         if (this.stateFilter.value) {
@@ -148,7 +164,7 @@ class TelegramParserApp {
     
     displayResults(accounts, query) {
         // Обновляем заголовок
-        this.resultsTitle.textContent = `поиск: "${query}"`;
+        this.resultsTitle.textContent = `Результаты: "${query}"`;
         this.resultsCount.textContent = accounts.length;
         
         // Очищаем контейнер
@@ -156,15 +172,17 @@ class TelegramParserApp {
         
         if (accounts.length === 0) {
             this.resultsContainer.innerHTML = `
-                <div class="account-card" style="text-align: center; padding: 40px;">
-                    <p style="color: var(--gray-500); margin-bottom: 16px;">аккаунты не найдены</p>
-                    <p style="font-size: 14px; color: var(--gray-400);">измените параметры поиска</p>
+                <div class="empty-state">
+                    <i class="fas fa-search"></i>
+                    <h3>Аккаунты не найдены</h3>
+                    <p>Попробуйте изменить параметры поиска</p>
+                    <p>Или свяжитесь с оператором для помощи</p>
                 </div>
             `;
             return;
         }
         
-        // Создаем карточки аккаунтов
+        // Создаем карточки
         accounts.forEach(account => {
             const card = this.createAccountCard(account);
             this.resultsContainer.appendChild(card);
@@ -185,7 +203,9 @@ class TelegramParserApp {
             <div class="account-id">${account.id}</div>
             
             <div class="account-header">
-                <div class="account-flag">${account.flag}</div>
+                <div class="account-avatar">
+                    <span style="font-size: 28px;">${account.flag}</span>
+                </div>
                 <div class="account-info">
                     <div class="account-title">${account.title}</div>
                     <div class="account-price">${account.price}</div>
@@ -194,19 +214,19 @@ class TelegramParserApp {
             
             <div class="account-details">
                 <div class="detail-item">
-                    <span class="detail-label">страна</span>
+                    <span class="detail-label">Страна</span>
                     <span class="detail-value">${account.country}</span>
                 </div>
                 <div class="detail-item">
-                    <span class="detail-label">возраст</span>
+                    <span class="detail-label">Возраст</span>
                     <span class="detail-value">${account.years} ${this.getYearWord(account.years)}</span>
                 </div>
                 <div class="detail-item">
-                    <span class="detail-label">состояние</span>
+                    <span class="detail-label">Состояние</span>
                     <span class="detail-value">${account.state}</span>
                 </div>
                 <div class="detail-item">
-                    <span class="detail-label">спамлок</span>
+                    <span class="detail-label">Спамлок</span>
                     <span class="detail-value">${account.spamlock}</span>
                 </div>
             </div>
@@ -216,7 +236,7 @@ class TelegramParserApp {
             </div>
             
             <button class="select-btn" data-id="${account.id}" data-title="${account.title}">
-                выбрать этот аккаунт
+                Выбрать этот аккаунт
             </button>
         `;
         
@@ -238,14 +258,16 @@ class TelegramParserApp {
         navigator.clipboard.writeText(accountId)
             .then(() => {
                 this.showModal(accountId);
+                this.trackSelection(accountId);
             })
             .catch(() => {
-                this.showMessage('не удалось скопировать', 'error');
+                this.showMessage('Не удалось скопировать номер', 'error');
             });
     }
     
     showModal(accountId) {
         this.modalAccountId.textContent = accountId;
+        this.modalAccountIdCode.textContent = accountId;
         this.modal.classList.add('show');
         document.body.style.overflow = 'hidden';
     }
@@ -260,9 +282,9 @@ class TelegramParserApp {
         
         try {
             await navigator.clipboard.writeText(this.selectedAccount.id);
-            this.showMessage('скопировано', 'success');
+            this.showMessage('Номер скопирован!', 'success');
         } catch (err) {
-            this.showMessage('ошибка', 'error');
+            this.showMessage('Ошибка копирования', 'error');
         }
     }
     
@@ -272,41 +294,44 @@ class TelegramParserApp {
     }
     
     showMessage(message, type = 'info') {
-        // Создаем сообщение
         const messageEl = document.createElement('div');
         messageEl.className = 'message';
         messageEl.textContent = message;
         
-        // Стили
+        const colors = {
+            error: '#ef4444',
+            warning: '#f59e0b',
+            success: '#10b981',
+            info: '#6b7280'
+        };
+        
         messageEl.style.cssText = `
             position: fixed;
             top: 20px;
             right: 20px;
-            background: ${type === 'error' ? '#ef4444' : 
-                        type === 'warning' ? '#f59e0b' : 
-                        type === 'success' ? '#10b981' : '#6b7280'};
+            background: ${colors[type] || colors.info};
             color: white;
-            padding: 12px 20px;
-            border-radius: 6px;
+            padding: 14px 24px;
+            border-radius: 8px;
             font-size: 14px;
             font-weight: 500;
             z-index: 10000;
             animation: slideIn 0.3s ease;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            max-width: 400px;
         `;
         
         document.body.appendChild(messageEl);
         
-        // Автоматическое скрытие
         setTimeout(() => {
             messageEl.style.animation = 'slideOut 0.3s ease forwards';
             setTimeout(() => messageEl.remove(), 300);
         }, 3000);
         
         // Анимации
-        if (!document.querySelector('#messageAnimations')) {
+        if (!document.querySelector('#messageStyles')) {
             const style = document.createElement('style');
-            style.id = 'messageAnimations';
+            style.id = 'messageStyles';
             style.textContent = `
                 @keyframes slideIn {
                     from {
@@ -333,6 +358,62 @@ class TelegramParserApp {
         }
     }
     
+    saveSearchStats(query, count) {
+        try {
+            const stats = JSON.parse(localStorage.getItem('tgFinderStats')) || {
+                totalSearches: 0,
+                uniqueQueries: [],
+                totalAccounts: 0
+            };
+            
+            stats.totalSearches++;
+            stats.totalAccounts += count;
+            
+            if (!stats.uniqueQueries.includes(query)) {
+                stats.uniqueQueries.push(query);
+            }
+            
+            localStorage.setItem('tgFinderStats', JSON.stringify(stats));
+            
+        } catch (error) {
+            console.error('Error saving stats:', error);
+        }
+    }
+    
+    trackSelection(accountId) {
+        // Отправляем статистику о выборе аккаунта
+        const selection = {
+            accountId,
+            timestamp: new Date().toISOString(),
+            userAgent: navigator.userAgent
+        };
+        
+        try {
+            const selections = JSON.parse(localStorage.getItem('tgSelections')) || [];
+            selections.push(selection);
+            localStorage.setItem('tgSelections', JSON.stringify(selections));
+        } catch (error) {
+            console.error('Error tracking selection:', error);
+        }
+    }
+    
+    trackTelegramClick() {
+        // Отслеживаем переход в Telegram
+        const clickData = {
+            accountId: this.selectedAccount?.id,
+            timestamp: new Date().toISOString(),
+            action: 'telegram_redirect'
+        };
+        
+        try {
+            const clicks = JSON.parse(localStorage.getItem('tgClicks')) || [];
+            clicks.push(clickData);
+            localStorage.setItem('tgClicks', JSON.stringify(clicks));
+        } catch (error) {
+            console.error('Error tracking click:', error);
+        }
+    }
+    
     getYearWord(years) {
         if (years === 1) return 'год';
         if (years >= 2 && years <= 4) return 'года';
@@ -342,5 +423,6 @@ class TelegramParserApp {
 
 // Инициализация
 document.addEventListener('DOMContentLoaded', () => {
-    window.app = new TelegramParserApp();
+    window.tgFinder = new TGFinder();
+    console.log('TG Finder initialized');
 });
